@@ -1,67 +1,36 @@
-import React, {useState} from 'react';
-import {View} from 'react-native';
-import {Button, Checkbox, List, TextInput} from 'react-native-paper';
-import {colors} from '../../commons/styles';
-import {useQuery, useRealm} from '../../models/realm';
-import {Task, TaskRepository, TaskSchema} from '../../models/tasks';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import React from 'react';
+import { v4 as uuid } from 'uuid';
+import Checklists from '../../components/Checklists';
+import { useRealm } from '../../databases/realm';
+import { Checklist, ChecklistSchema } from '../../databases/schemas/checklist';
+import { HomeStackParamList } from '../../routes/stack';
+import { Container, Fab } from './styles';
 
-export const HomeScreen: React.FC = () => {
+export const HomeScreen: React.FC<
+  NativeStackScreenProps<HomeStackParamList, 'Home'>
+> = ({ navigation }) => {
   const realm = useRealm();
-  const tasks = useQuery<Task>('Task');
 
-  const [task, setTask] = useState('');
-
-  const addTask = (content: string) => {
+  const handleCreateChecklist = () => {
     realm.write(() => {
-      realm.create<Task>(TaskSchema.name, TaskRepository.create({content}));
-    });
-  };
-
-  const updateTask = (item: Task) => {
-    realm.write(() => {
-      let saved = tasks.filter(t => (t._id = item._id))[0];
-      saved.done = item.done;
-      saved.content = item.content;
+      const checklist = realm.create<Checklist>(ChecklistSchema.name, {
+        date: new Date(),
+        id: uuid(),
+      });
+      if (checklist.id) {
+        navigation.navigate('CreateChecklist', {
+          checklistId: checklist.id,
+        });
+      }
     });
   };
 
   return (
-    <View>
-      <View style={{padding: 16}}>
-        <TextInput
-          value={task}
-          onChangeText={setTask}
-          mode="outlined"
-          label="task"
-        />
+    <Container>
+      <Checklists />
 
-        <Button
-          mode="contained"
-          style={{marginTop: 16}}
-          onPress={() => addTask(task)}>
-          salvar
-        </Button>
-      </View>
-
-      <List.Section>
-        <List.Subheader>Tasks</List.Subheader>
-        {tasks.map(item => (
-          <List.Item
-            description={item.done ? 'concluída' : 'não concluida'}
-            title={item.content}
-            key={String(item._id)}
-            left={() => (
-              <Checkbox
-                color={item.done ? colors.success : colors.error}
-                status={item.done ? 'checked' : 'unchecked'}
-                onPress={() => {
-                  updateTask({...item.toJSON(), done: !item.done});
-                }}
-              />
-            )}
-          />
-        ))}
-      </List.Section>
-    </View>
+      <Fab icon="plus" onPress={handleCreateChecklist} />
+    </Container>
   );
 };

@@ -9,13 +9,15 @@
  */
 
 import React from 'react';
-import {ActivityIndicator} from 'react-native';
+import { ActivityIndicator } from 'react-native';
 
-import {DefaultTheme, Provider as PaperProvider} from 'react-native-paper';
-import {colors} from './src/commons/styles';
-import {AuthProvider} from './src/contexts/auth.context';
-import {RealmProvider} from './src/models/realm';
-import {Routes} from './src/routes/routes';
+import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
+import { colors } from './src/commons/styles';
+import { RealmProvider } from './src/databases/realm';
+import { AuthProvider } from './src/providers/auth.provider';
+import { NetinfoProvider } from './src/providers/netinfo.provider';
+import { SnackbarProvider } from './src/providers/snackbar.provider';
+import { Routes } from './src/routes/routes';
 
 const theme = {
   ...DefaultTheme,
@@ -29,11 +31,15 @@ const theme = {
 const App = () => {
   return (
     <RealmProvider fallback={<ActivityIndicator />}>
-      <AuthProvider>
-        <PaperProvider theme={theme}>
-          <Routes />
-        </PaperProvider>
-      </AuthProvider>
+      <PaperProvider theme={theme}>
+        <SnackbarProvider>
+          <AuthProvider>
+            <NetinfoProvider>
+              <Routes />
+            </NetinfoProvider>
+          </AuthProvider>
+        </SnackbarProvider>
+      </PaperProvider>
     </RealmProvider>
   );
 };

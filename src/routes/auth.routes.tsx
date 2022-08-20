@@ -2,11 +2,11 @@ import {
   BottomTabNavigationOptions,
   createBottomTabNavigator,
 } from '@react-navigation/bottom-tabs';
-import {NavigationContainer} from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import React from 'react';
 import Icon from 'react-native-vector-icons/Feather';
-import {colors} from '../commons/styles';
-import {HomeStackRoutes, SettingsStackRoutes} from './stack';
+import { colors } from '../commons/styles';
+import { HomeStackRoutes, SettingsStackRoutes } from './stack';
 
 const Tab = createBottomTabNavigator();
 
@@ -32,17 +32,22 @@ const routes: RouteItem[] = [
   },
 ];
 
+export type TabsParamList = {
+  Home: undefined;
+  Settings: undefined;
+};
+
 export const AuthTabRoutes = () => {
   return (
     <NavigationContainer>
       <Tab.Navigator
-        screenOptions={({route}) => ({
+        screenOptions={({ route }) => ({
           tabBarActiveTintColor: colors.primary,
           tabBarInactiveTintColor: colors.lightGray,
           headerTitleStyle: {
             color: 'red',
           },
-          tabBarIcon: ({color, size}) => {
+          tabBarIcon: ({ color, size }) => {
             switch (route.name) {
               case 'Home':
                 return <Icon name="home" size={size} color={color} />;
