@@ -1,4 +1,4 @@
-import { OptionCommonAnswer } from '../../../databases/schemas';
+import { Checklist, OptionCommonAnswer } from '../../../databases/schemas';
 import { Action, ActionType } from './types';
 
 const createAction = <T>(type: ActionType) => {
@@ -10,6 +10,4 @@ const createAction = <T>(type: ActionType) => {
   };
 };
 
-export const changeClosed = createAction<boolean>('CHANGE_CLOSED');
-export const changeBrakes = createAction<OptionCommonAnswer>('CHANGE_BRAKES');
-export const changeDate = createAction<Date>('CHANGE_DATE');
+export const update = createAction<Partial<Checklist>>('UPDATE');

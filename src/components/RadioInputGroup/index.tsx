@@ -3,7 +3,7 @@ import { Container, Label, Option, Options, OptionText } from './styles';
 
 export type RadioOptionType = 'error' | 'success' | 'default';
 
-interface RadioOption<T extends string> {
+export interface RadioOption<T extends string> {
   value: T;
   label?: string;
   type: RadioOptionType;

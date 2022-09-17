@@ -22,7 +22,7 @@ const Checklist: React.FC<ChecklistProps> = ({ item }) => {
   const doneChecklist = () => {
     realm.write(() => {
       if (checklist) {
-        checklist.closed = !checklist.closed;
+        checklist.isClosed = !checklist.isClosed;
       }
     });
   };
@@ -40,7 +40,7 @@ const Checklist: React.FC<ChecklistProps> = ({ item }) => {
       <Card onPress={openChecklistForm}>
         <Card.Title
           title={item.id}
-          subtitle={item.closed ? 'fechado' : 'aberto'}
+          subtitle={item.isClosed ? 'fechado' : 'aberto'}
         />
         <Card.Actions>
           <Button onPress={doneChecklist}>Fechar</Button>

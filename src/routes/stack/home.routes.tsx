@@ -13,7 +13,7 @@ import { options } from './commons';
 const Stack = createNativeStackNavigator();
 
 export type HomeStackParamList = {
-  Home: undefined;
+  Checklists: undefined;
   CreateChecklist: { checklistId: string };
 };
 

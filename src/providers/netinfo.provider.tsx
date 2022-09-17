@@ -18,9 +18,6 @@ export const NetinfoProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
   useEffect(() => {
     const unsubscribeNetinfo = NetInfo.addEventListener(state => {
-      console.log('Connection type', state.type);
-      console.log('Is connected?', state.isConnected);
-
       setIsOnline(!!state.isInternetReachable);
     });
 

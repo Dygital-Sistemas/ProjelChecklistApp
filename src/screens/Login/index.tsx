@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 import { Button, Headline, TextInput } from 'react-native-paper';
 import { buttonStyles, typographyStyles } from '../../commons/styles';
-import { User } from '../../databases/schemas/user';
 import { useAuth, useSnackbar } from '../../providers';
-import { api } from '../../services/api';
+import { submitLogin } from './login.repository';
 
 import { styles } from './styles';
 
@@ -19,12 +18,10 @@ export const LoginScreen: React.FC = () => {
 
   const validateForm = !email || !password;
 
-  const submitLogin = async () => {
+  const handleLogin = async () => {
     setLoading(true);
-    return api
-      .post<User>('/auth', { email, password })
+    return submitLogin(email, password)
       .then(({ data }) => {
-        console.log(data);
         login(data);
       })
       .catch(error => {
@@ -72,7 +69,7 @@ export const LoginScreen: React.FC = () => {
         }
       />
       <Button
-        onPress={submitLogin}
+        onPress={handleLogin}
         style={buttonStyles.default}
         disabled={validateForm}
         loading={loading}

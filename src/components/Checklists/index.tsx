@@ -11,7 +11,7 @@ import { Container } from './styles';
 const Checklists: React.FC = ({}) => {
   const checklists: IChecklist[] = useQuery<IChecklist>(ChecklistSchema.name)
     .sorted('date', true)
-    .filtered('closed = false')
+    // .filtered('isClosed = false')
     .toJSON();
 
   return (
