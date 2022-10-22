@@ -4,6 +4,7 @@ export const ChecklistSchema: ObjectSchema = {
   name: 'Checklist',
   properties: {
     id: 'string',
+    vehicleId: 'string?',
     date: 'date',
     isClosed: { type: 'bool', default: false },
 
@@ -49,6 +50,7 @@ export const ChecklistSchema: ObjectSchema = {
 export type OptionCommonAnswer = 'C' | 'N' | 'NA';
 
 export interface Checklist {
+  vehicleId?: string;
   id: string;
   date: Date;
   isClosed?: boolean;

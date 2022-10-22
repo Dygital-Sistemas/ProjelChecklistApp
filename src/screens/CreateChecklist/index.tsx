@@ -15,6 +15,7 @@ import { Container } from './styles';
 import { createChecklistRepository } from './create-checklist.repository';
 import { useNetinfo, useSnackbar } from '../../providers';
 import { MultiSelectBreakdowns } from '../../components/MultiSelectBreakdowns';
+import { SelectInput } from '../../components/SelectInput';
 
 import topImg from '../../assets/top.png';
 import rightImg from '../../assets/right.png';
@@ -85,7 +86,17 @@ export const CreateChecklist: React.FC<
     } catch (err) {
       const error = err as any;
       console.log(error.response.data);
-      snackbar.show('Não foi possível salvar o checklist', 'error');
+      const responseErrors = error.response.data?.errors;
+      const responseError =
+        error.response.data?.message || 'Não foi possível salvar o checklist';
+
+      if (responseErrors.length) {
+        responseErrors.map((error: Record<string, any>) => {
+          snackbar.show(error.message, 'error');
+        });
+      } else {
+        snackbar.show(responseError, 'error');
+      }
     } finally {
       setLoading(false);
     }
@@ -103,6 +114,12 @@ export const CreateChecklist: React.FC<
 
   return (
     <Container>
+      <SelectInput
+        onChange={vehicleId => {
+          dispatch(update({ vehicleId }));
+        }}
+        selected={state.vehicleId || ''}
+      />
       <DatePicker
         label="Data"
         value={state.date}
