@@ -42,12 +42,14 @@ export const ChecklistSchema: ObjectSchema = {
     rightBreakdowns: 'string[]',
     topBreakdowns: 'string[]',
 
-    observations: 'string?',
+    comments: 'string?',
   },
   primaryKey: 'id',
 };
 
 export type OptionCommonAnswer = 'C' | 'N' | 'NA';
+
+export type fuelLevelAnswer = '1' | '2' | '3' | '4';
 
 export interface Checklist {
   vehicleId?: string;
@@ -56,7 +58,7 @@ export interface Checklist {
   isClosed?: boolean;
   startOdometer?: string;
   endOdometer?: string;
-  fuelLevel?: string;
+  fuelLevel?: fuelLevelAnswer;
   brakes?: OptionCommonAnswer;
   fireExtinguisher?: OptionCommonAnswer;
   headlightFlashlight?: OptionCommonAnswer;
@@ -85,5 +87,5 @@ export interface Checklist {
   leftBreakdowns?: string[];
   rightBreakdowns?: string[];
   topBreakdowns?: string[];
-  observations?: string;
+  comments?: string;
 }

@@ -1,17 +1,18 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Button, TextInput, Title } from 'react-native-paper';
+import { Button, Text, TextInput, Title } from 'react-native-paper';
 import { DatePicker } from '../../components/DatePicker';
 import { RadioInputGroup, RadioOption } from '../../components/RadioInputGroup';
 import { useObject, useRealm } from '../../databases/realm';
 import {
   Checklist,
   ChecklistSchema,
+  fuelLevelAnswer,
   OptionCommonAnswer,
 } from '../../databases/schemas';
 import { HomeStackParamList } from '../../routes/stack';
 import { update, useChecklistStore } from './reducer';
-import { Container } from './styles';
+import { Container, Header, ItemsLabel, SectionTitle } from './styles';
 import { createChecklistRepository } from './create-checklist.repository';
 import { useNetinfo, useSnackbar } from '../../providers';
 import { MultiSelectBreakdowns } from '../../components/MultiSelectBreakdowns';
@@ -112,8 +113,36 @@ export const CreateChecklist: React.FC<
     { type: 'default', value: 'NA' },
   ];
 
+  const fuelLevelOptions: RadioOption<fuelLevelAnswer>[] = [
+    { type: 'error', value: '1' },
+    { type: 'default', value: '2' },
+    { type: 'default', value: '3' },
+    { type: 'success', value: '4' },
+  ];
+
   return (
     <Container>
+      <Header>
+        <Title style={{ fontSize: 26, marginBottom: 10 }}>
+          Checklist Diário
+        </Title>
+        <Text
+          style={{
+            fontSize: 18,
+            marginBottom: 10,
+            color: 'rgba(68, 68, 68, .6)',
+          }}>
+          Para veículos leves e utilitários
+        </Text>
+        <Text
+          style={{
+            fontSize: 18,
+            textAlign: 'center',
+            color: 'rgba(68, 68, 68, .6)',
+          }}>
+          Preenchimento obrigatório somente na primeira utilização do dia
+        </Text>
+      </Header>
       <SelectInput
         onChange={vehicleId => {
           dispatch(update({ vehicleId }));
@@ -139,6 +168,35 @@ export const CreateChecklist: React.FC<
         value={state.endOdometer}
         onChangeText={value => dispatch(update({ endOdometer: value }))}
       />
+
+      <RadioInputGroup<fuelLevelAnswer>
+        selected={state.fuelLevel ?? '1'}
+        label="Nível de Combustível"
+        onChange={value => dispatch(update({ fuelLevel: value }))}
+        options={fuelLevelOptions}
+      />
+
+      <Title style={{ marginTop: 16, fontSize: 22 }}>Itens a verificar</Title>
+
+      <ItemsLabel>
+        {/* <Title style={{ fontSize: 16 }}>Legenda</Title> */}
+        <Text
+          style={{ color: 'rgba(68, 68, 68, .6)', textTransform: 'uppercase' }}>
+          C - conforme
+        </Text>
+        <Text
+          style={{ color: 'rgba(68, 68, 68, .6)', textTransform: 'uppercase' }}>
+          N - não conforme
+        </Text>
+        <Text
+          style={{ color: 'rgba(68, 68, 68, .6)', textTransform: 'uppercase' }}>
+          NA - não aplicável
+        </Text>
+      </ItemsLabel>
+
+      <SectionTitle>
+        Itens que impedem a circulação do veículo (segurança)
+      </SectionTitle>
 
       <RadioInputGroup<OptionCommonAnswer>
         selected={state.brakes ?? 'NA'}
@@ -183,6 +241,8 @@ export const CreateChecklist: React.FC<
       />
 
       {/* Itens  de verificação geral */}
+      <SectionTitle>Itens de verificação geral</SectionTitle>
+
       <RadioInputGroup<OptionCommonAnswer>
         selected={state.preventiveMaintenanceTerm ?? 'NA'}
         label="Prazo de Manutenção Preventiva"
@@ -250,6 +310,10 @@ export const CreateChecklist: React.FC<
 
       {/* Itens que impedem a circulação do veículo em área de lavra */}
 
+      <SectionTitle>
+        Itens que impedem a circulação do veículo em área de lavra
+      </SectionTitle>
+
       <RadioInputGroup<OptionCommonAnswer>
         selected={state.carFlag ?? 'NA'}
         label="Bandeirola"
@@ -278,6 +342,11 @@ export const CreateChecklist: React.FC<
         options={commonOptions}
       />
 
+      <SectionTitle>
+        Itens que impedem a circulação do veículo em área de lavra e de
+        verificação geral
+      </SectionTitle>
+
       <RadioInputGroup<OptionCommonAnswer>
         selected={state.reverseAlarm ?? 'NA'}
         label="Alarme de Ré"
@@ -291,6 +360,8 @@ export const CreateChecklist: React.FC<
         onChange={value => dispatch(update({ communicationRadio: value }))}
         options={commonOptions}
       />
+
+      <SectionTitle>Verificação do Totaly</SectionTitle>
 
       <TextInput
         label="Quantidade de Estouros"
@@ -318,16 +389,7 @@ export const CreateChecklist: React.FC<
         ]}
       />
 
-      <TextInput
-        label="Observações"
-        style={{ marginTop: 16 }}
-        value={state.observations}
-        onChangeText={value => dispatch(update({ observations: value }))}
-        multiline
-        numberOfLines={3}
-      />
-
-      <Title style={{ marginTop: 16 }}>Avarias</Title>
+      <Title style={{ marginTop: 16, fontSize: 22 }}>Avarias</Title>
 
       <MultiSelectBreakdowns
         source={leftImg}
@@ -369,13 +431,22 @@ export const CreateChecklist: React.FC<
         selected={state.backBreakdowns ?? []}
       />
 
+      <TextInput
+        label="Observações"
+        style={{ marginTop: 16 }}
+        value={state.comments}
+        onChangeText={value => dispatch(update({ comments: value }))}
+        multiline
+        numberOfLines={3}
+      />
+
       <Button
         mode="contained"
         onPress={() => handleSaveChecklist(checklist)}
         loading={loading}
         disabled={loading}
         style={{ marginTop: 16, marginBottom: 32 }}>
-        Salvar
+        Fechar checklist
       </Button>
     </Container>
   );
