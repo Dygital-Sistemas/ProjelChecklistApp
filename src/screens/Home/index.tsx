@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import NetInfo from '@react-native-community/netinfo';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { v4 as uuid } from 'uuid';
 import Checklists from '../../components/Checklists';
@@ -7,7 +8,8 @@ import { Checklist, ChecklistSchema } from '../../databases/schemas/checklist';
 import { HomeStackParamList } from '../../routes/stack';
 import { Container, Fab } from './styles';
 import { sendChecklists } from './checklists.repository';
-import NetInfo from '@react-native-community/netinfo';
+import { getVehicles } from './vehicles.repository';
+import { Vehicle, VehicleSchema } from '../../databases/schemas/vehicle';
 
 export const HomeScreen: React.FC<
   NativeStackScreenProps<HomeStackParamList, 'Checklists'>
@@ -16,13 +18,18 @@ export const HomeScreen: React.FC<
   const openChecklist = useQuery<Checklist>(ChecklistSchema.name).filtered(
     'isClosed = false',
   )[0];
+  const storedVehicles = realm
+    .objects<Vehicle>(VehicleSchema.name)
+    .sorted('updated_at', true);
+
+  console.log(storedVehicles.length);
 
   const sendClosedChecklists = async () => {
     const { isInternetReachable: isOnline } = await NetInfo.fetch();
     const data = realm
       .objects<Checklist>(ChecklistSchema.name)
       .filtered('isClosed = true');
-
+    if (!data.length) return;
     try {
       if (isOnline) {
         const resp = await sendChecklists(data.toJSON());
@@ -36,8 +43,30 @@ export const HomeScreen: React.FC<
     } catch (error) {}
   };
 
-  useEffect(() => {
-    sendClosedChecklists();
+  const storeVehicles = (vehicles: Vehicle[]) => {
+    realm.write(() => {
+      realm.delete(storedVehicles);
+      for (const vehicle of vehicles) {
+        realm.create(VehicleSchema.name, vehicle);
+      }
+    });
+  };
+
+  const getApiVehicles = useCallback(async () => {
+    try {
+      const {
+        data: { vehicles },
+      } = await getVehicles({
+        lastUpdatedAt: storedVehicles[0]?.updated_at,
+        vehiclesCount: storedVehicles.length,
+      });
+      console.log(vehicles);
+      if (vehicles.length) {
+        storeVehicles(vehicles);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   }, []);
 
   const navigateToChecklist = useCallback(
@@ -51,12 +80,6 @@ export const HomeScreen: React.FC<
     [navigation],
   );
 
-  useEffect(() => {
-    if (openChecklist) {
-      navigateToChecklist(openChecklist);
-    }
-  }, [navigateToChecklist, openChecklist]);
-
   const handleCreateChecklist = () => {
     realm.write(() => {
       const checklist = realm.create<Checklist>(ChecklistSchema.name, {
@@ -66,6 +89,15 @@ export const HomeScreen: React.FC<
       navigateToChecklist(checklist);
     });
   };
+
+  useEffect(() => {
+    if (openChecklist) {
+      navigateToChecklist(openChecklist);
+    }
+
+    sendClosedChecklists();
+    getApiVehicles();
+  }, [getApiVehicles, navigateToChecklist, openChecklist]);
 
   return (
     <Container>
