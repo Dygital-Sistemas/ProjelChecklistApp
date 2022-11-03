@@ -8,7 +8,7 @@
  * @format
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ActivityIndicator } from 'react-native';
 
 import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
@@ -18,6 +18,7 @@ import { AuthProvider } from './src/providers/auth.provider';
 import { NetinfoProvider } from './src/providers/netinfo.provider';
 import { SnackbarProvider } from './src/providers/snackbar.provider';
 import { Routes } from './src/routes/routes';
+import SplashScreen from 'react-native-splash-screen';
 
 const theme = {
   ...DefaultTheme,
@@ -29,6 +30,10 @@ const theme = {
 };
 
 const App = () => {
+  useEffect(() => {
+    SplashScreen.hide();
+  }, []);
+
   return (
     <RealmProvider fallback={<ActivityIndicator />}>
       <PaperProvider theme={theme}>
