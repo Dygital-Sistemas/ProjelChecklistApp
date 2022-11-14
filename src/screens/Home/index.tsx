@@ -22,8 +22,6 @@ export const HomeScreen: React.FC<
     .objects<Vehicle>(VehicleSchema.name)
     .sorted('updated_at', true);
 
-  console.log(storedVehicles.length);
-
   const sendClosedChecklists = async () => {
     const { isInternetReachable: isOnline } = await NetInfo.fetch();
     const data = realm

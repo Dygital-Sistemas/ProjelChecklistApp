@@ -25,7 +25,7 @@ export const LoginScreen: React.FC = () => {
         login(data);
       })
       .catch(error => {
-        if (error.response?.data.message) {
+        if (error.response.data?.message) {
           snackbar.show(error.response.data.message, 'error');
         }
       })

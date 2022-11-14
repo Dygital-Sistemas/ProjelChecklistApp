@@ -65,9 +65,22 @@ export const CreateChecklist: React.FC<
     });
   }, [state, realm]);
 
+  const validateVehicle = !!state.vehicleId;
+
   const handleSaveChecklist = async (data: Realm.Object | null) => {
-    setLoading(true);
+    if (!validateVehicle) {
+      snackbar.show('Obrigatório selecionar um veículo', 'error');
+      return;
+    }
+
+    if (state.startOdometer === '0') {
+      snackbar.show('Odômetro é um campo obrigatório', 'error');
+      return;
+    }
+
     if (!data) return;
+
+    setLoading(true);
 
     if (!isOnline) {
       closeChecklist(checklistId);
@@ -83,10 +96,9 @@ export const CreateChecklist: React.FC<
       await createChecklistRepository.create(data);
       removeClosedChecklist(data);
       navigation.replace('Checklists');
-      snackbar.show('Checklist enviado!', 'success');
+      snackbar.show('Checklist enviado', 'success');
     } catch (err) {
       const error = err as any;
-      console.log(error.response.data);
       const responseErrors = error.response.data?.errors;
       const responseError =
         error.response.data?.message || 'Não foi possível salvar o checklist';
@@ -156,17 +168,10 @@ export const CreateChecklist: React.FC<
       />
 
       <TextInput
-        label="Odômetro inicial"
+        label="Odômetro (km)"
         style={{ marginTop: 16 }}
         value={state.startOdometer}
         onChangeText={value => dispatch(update({ startOdometer: value }))}
-      />
-
-      <TextInput
-        label="Odômetro final"
-        style={{ marginTop: 16 }}
-        value={state.endOdometer}
-        onChangeText={value => dispatch(update({ endOdometer: value }))}
       />
 
       <RadioInputGroup<fuelLevelAnswer>
@@ -179,7 +184,6 @@ export const CreateChecklist: React.FC<
       <Title style={{ marginTop: 16, fontSize: 22 }}>Itens a verificar</Title>
 
       <ItemsLabel>
-        {/* <Title style={{ fontSize: 16 }}>Legenda</Title> */}
         <Text
           style={{ color: 'rgba(68, 68, 68, .6)', textTransform: 'uppercase' }}>
           C - conforme

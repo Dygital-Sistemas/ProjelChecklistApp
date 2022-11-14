@@ -9,8 +9,7 @@ export const ChecklistSchema: ObjectSchema = {
     isClosed: { type: 'bool', default: false },
 
     startOdometer: { type: 'string', default: '0' },
-    endOdometer: { type: 'string', default: '0' },
-    fuelLevel: { type: 'string', default: '0' },
+    fuelLevel: { type: 'string', default: '1' },
 
     brakes: { type: 'string', default: 'C' },
     fireExtinguisher: { type: 'string', default: 'C' },
@@ -57,7 +56,6 @@ export interface Checklist {
   date: Date;
   isClosed?: boolean;
   startOdometer?: string;
-  endOdometer?: string;
   fuelLevel?: fuelLevelAnswer;
   brakes?: OptionCommonAnswer;
   fireExtinguisher?: OptionCommonAnswer;
