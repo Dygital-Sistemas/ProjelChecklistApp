@@ -395,6 +395,31 @@ export const CreateChecklist: React.FC<
 
       <Title style={{ marginTop: 16, fontSize: 22 }}>Avarias</Title>
 
+      <ItemsLabel>
+        <Text
+          style={{ color: 'rgba(68, 68, 68, .6)', textTransform: 'uppercase' }}>
+          A - amassado
+        </Text>
+        <Text
+          style={{ color: 'rgba(68, 68, 68, .6)', textTransform: 'uppercase' }}>
+          R - riscado
+        </Text>
+        <Text
+          style={{ color: 'rgba(68, 68, 68, .6)', textTransform: 'uppercase' }}>
+          T - trincado
+        </Text>
+
+        <Text
+          style={{ color: 'rgba(68, 68, 68, .6)', textTransform: 'uppercase' }}>
+          X - Quebrado
+        </Text>
+
+        <Text
+          style={{ color: 'rgba(68, 68, 68, .6)', textTransform: 'uppercase' }}>
+          F - Faltante
+        </Text>
+      </ItemsLabel>
+
       <MultiSelectBreakdowns
         source={leftImg}
         onChange={selecteds => {
