@@ -48,7 +48,7 @@ export const ChecklistSchema: ObjectSchema = {
 
 export type OptionCommonAnswer = 'C' | 'N' | 'NA';
 
-export type fuelLevelAnswer = '1' | '2' | '3' | '4';
+export type fuelLevelAnswer = 'e' | '1/4' | '1/2' | '3/4' | 'f';
 
 export interface Checklist {
   vehicleId?: string;

@@ -126,10 +126,11 @@ export const CreateChecklist: React.FC<
   ];
 
   const fuelLevelOptions: RadioOption<fuelLevelAnswer>[] = [
-    { type: 'error', value: '1' },
-    { type: 'default', value: '2' },
-    { type: 'default', value: '3' },
-    { type: 'success', value: '4' },
+    { type: 'error', value: 'e' },
+    { type: 'default', value: '1/4' },
+    { type: 'default', value: '1/2' },
+    { type: 'default', value: '3/4' },
+    { type: 'success', value: 'f' },
   ];
 
   return (
@@ -175,7 +176,7 @@ export const CreateChecklist: React.FC<
       />
 
       <RadioInputGroup<fuelLevelAnswer>
-        selected={state.fuelLevel ?? '1'}
+        selected={state.fuelLevel ?? 'f'}
         label="Nível de Combustível"
         onChange={value => dispatch(update({ fuelLevel: value }))}
         options={fuelLevelOptions}
