@@ -1,5 +1,5 @@
 import { Config } from './config';
 
 export const prodConfig: Config = {
-  baseURL: 'https://projel-controle.herokuapp.com/api',
+  baseURL: 'http://167.172.102.138/api',
 };
