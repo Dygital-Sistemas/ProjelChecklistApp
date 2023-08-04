@@ -2,27 +2,27 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Button, Text, TextInput, Title } from 'react-native-paper';
 import { DatePicker } from '../../components/DatePicker';
+import { MultiSelectBreakdowns } from '../../components/MultiSelectBreakdowns';
 import { RadioInputGroup, RadioOption } from '../../components/RadioInputGroup';
+import { SelectInput } from '../../components/SelectInput';
 import { useObject, useRealm } from '../../databases/realm';
 import {
   Checklist,
   ChecklistSchema,
-  fuelLevelAnswer,
   OptionCommonAnswer,
+  fuelLevelAnswer,
 } from '../../databases/schemas';
+import { useNetinfo, useSnackbar } from '../../providers';
 import { HomeStackParamList } from '../../routes/stack';
+import { createChecklistRepository } from './create-checklist.repository';
 import { update, useChecklistStore } from './reducer';
 import { Container, Header, ItemsLabel, SectionTitle } from './styles';
-import { createChecklistRepository } from './create-checklist.repository';
-import { useNetinfo, useSnackbar } from '../../providers';
-import { MultiSelectBreakdowns } from '../../components/MultiSelectBreakdowns';
-import { SelectInput } from '../../components/SelectInput';
 
-import topImg from '../../assets/top.png';
-import rightImg from '../../assets/right.png';
-import leftImg from '../../assets/left.png';
 import backImg from '../../assets/back.png';
 import frontImg from '../../assets/front.png';
+import leftImg from '../../assets/left.png';
+import rightImg from '../../assets/right.png';
+import topImg from '../../assets/top.png';
 
 export const CreateChecklist: React.FC<
   NativeStackScreenProps<HomeStackParamList, 'CreateChecklist'>
@@ -73,7 +73,7 @@ export const CreateChecklist: React.FC<
       return;
     }
 
-    if (state.startOdometer === '0') {
+    if (state.startOdometer === 0) {
       snackbar.show('Odômetro é um campo obrigatório', 'error');
       return;
     }
@@ -170,9 +170,12 @@ export const CreateChecklist: React.FC<
 
       <TextInput
         label="Odômetro (km)"
+        keyboardType="numeric"
         style={{ marginTop: 16 }}
-        value={state.startOdometer}
-        onChangeText={value => dispatch(update({ startOdometer: value }))}
+        value={state.startOdometer ? state.startOdometer.toString() : ''}
+        onChangeText={value =>
+          dispatch(update({ startOdometer: parseInt(value) }))
+        }
       />
 
       <RadioInputGroup<fuelLevelAnswer>
