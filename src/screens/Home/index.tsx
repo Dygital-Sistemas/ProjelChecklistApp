@@ -1,15 +1,15 @@
-import React, { useCallback, useEffect, useState } from 'react';
 import NetInfo from '@react-native-community/netinfo';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import React, { useCallback, useEffect } from 'react';
 import { v4 as uuid } from 'uuid';
 import Checklists from '../../components/Checklists';
 import { useQuery, useRealm } from '../../databases/realm';
 import { Checklist, ChecklistSchema } from '../../databases/schemas/checklist';
-import { HomeStackParamList } from '../../routes/stack';
-import { Container, Fab } from './styles';
-import { sendChecklists } from './checklists.repository';
-import { getVehicles } from './vehicles.repository';
 import { Vehicle, VehicleSchema } from '../../databases/schemas/vehicle';
+import { HomeStackParamList } from '../../routes/stack';
+import { createChecklistRepository } from '../CreateChecklist/create-checklist.repository';
+import { Container, Fab } from './styles';
+import { getVehicles } from './vehicles.repository';
 
 export const HomeScreen: React.FC<
   NativeStackScreenProps<HomeStackParamList, 'Checklists'>
@@ -22,23 +22,41 @@ export const HomeScreen: React.FC<
     .objects<Vehicle>(VehicleSchema.name)
     .sorted('updated_at', true);
 
+  const markAsSent = (checklist: Checklist & Realm.Object) => {
+    realm.write(() => {
+      checklist.sent = true;
+    });
+  };
+
+  const markRetry = (checklist: Checklist & Realm.Object) => {
+    realm.write(() => {
+      checklist.retriesCount += 1;
+    });
+  };
+
   const sendClosedChecklists = async () => {
     const { isInternetReachable: isOnline } = await NetInfo.fetch();
     const data = realm
       .objects<Checklist>(ChecklistSchema.name)
-      .filtered('isClosed = true');
-    if (!data.length) return;
-    try {
-      if (isOnline) {
-        const resp = await sendChecklists(data.toJSON());
+      .filtered('isClosed = true && sent = false && retriesCount <= 3');
+
+    const data2 = realm.objects<Checklist>(ChecklistSchema.name);
+
+    console.log(data2[0]);
+
+    if (!isOnline || !data.length) return;
+
+    for (const checklist of data) {
+      try {
+        const resp = await createChecklistRepository.create(checklist);
 
         if (resp.status === 200) {
-          realm.write(() => {
-            realm.delete(data);
-          });
+          markAsSent(checklist);
         }
+      } catch (err) {
+        markRetry(checklist);
       }
-    } catch (error) {}
+    }
   };
 
   const storeVehicles = (vehicles: Vehicle[]) => {
@@ -58,7 +76,6 @@ export const HomeScreen: React.FC<
         lastUpdatedAt: storedVehicles[0]?.updated_at,
         vehiclesCount: storedVehicles.length,
       });
-      console.log(vehicles);
       if (vehicles.length) {
         storeVehicles(vehicles);
       }
@@ -83,6 +100,8 @@ export const HomeScreen: React.FC<
       const checklist = realm.create<Checklist>(ChecklistSchema.name, {
         date: new Date(),
         id: uuid(),
+        startOdometer: 0,
+        retriesCount: 0,
       });
       navigateToChecklist(checklist);
     });
@@ -92,6 +111,10 @@ export const HomeScreen: React.FC<
     if (openChecklist) {
       navigateToChecklist(openChecklist);
     }
+
+    // realm.write(() => {
+    //   realm.deleteAll();
+    // });
 
     sendClosedChecklists();
     getApiVehicles();

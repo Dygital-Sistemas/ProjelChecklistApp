@@ -9,12 +9,11 @@ import { useObject, useRealm } from '../../databases/realm';
 import {
   Checklist,
   ChecklistSchema,
+  FuelLevelAnswer,
   OptionCommonAnswer,
-  fuelLevelAnswer,
 } from '../../databases/schemas';
 import { useNetinfo, useSnackbar } from '../../providers';
 import { HomeStackParamList } from '../../routes/stack';
-import { createChecklistRepository } from './create-checklist.repository';
 import { update, useChecklistStore } from './reducer';
 import { Container, Header, ItemsLabel, SectionTitle } from './styles';
 
@@ -23,6 +22,7 @@ import frontImg from '../../assets/front.png';
 import leftImg from '../../assets/left.png';
 import rightImg from '../../assets/right.png';
 import topImg from '../../assets/top.png';
+import { createChecklistRepository } from './create-checklist.repository';
 
 export const CreateChecklist: React.FC<
   NativeStackScreenProps<HomeStackParamList, 'CreateChecklist'>
@@ -30,7 +30,7 @@ export const CreateChecklist: React.FC<
   const snackbar = useSnackbar();
   const [loading, setLoading] = useState(false);
   const { checklistId } = route.params;
-  const checklist = useObject(ChecklistSchema.name, checklistId);
+  const checklist = useObject<Checklist>(ChecklistSchema.name, checklistId);
 
   const realm = useRealm();
   const { dispatch, state } = useChecklistStore(
@@ -38,9 +38,16 @@ export const CreateChecklist: React.FC<
   );
   const { isOnline } = useNetinfo();
 
-  const removeClosedChecklist = (data: Realm.Object) => {
+  const closeAndSendChecklist = (checklist: Checklist & Realm.Object) => {
     realm.write(() => {
-      realm.delete(data);
+      checklist.isClosed = true;
+      checklist.sent = true;
+    });
+  };
+
+  const markRetry = (checklist: Checklist & Realm.Object) => {
+    realm.write(() => {
+      checklist.retriesCount += 1;
     });
   };
 
@@ -67,7 +74,9 @@ export const CreateChecklist: React.FC<
 
   const validateVehicle = !!state.vehicleId;
 
-  const handleSaveChecklist = async (data: Realm.Object | null) => {
+  const handleSaveChecklist = async (
+    data: (Checklist & Realm.Object) | null,
+  ) => {
     if (!validateVehicle) {
       snackbar.show('Obrigatório selecionar um veículo', 'error');
       return;
@@ -94,16 +103,18 @@ export const CreateChecklist: React.FC<
 
     try {
       await createChecklistRepository.create(data);
-      removeClosedChecklist(data);
+
+      closeAndSendChecklist(data);
       navigation.replace('Checklists');
       snackbar.show('Checklist enviado', 'success');
     } catch (err) {
+      markRetry(data);
       const error = err as any;
-      const responseErrors = error.response.data?.errors;
+      const responseErrors = error.response?.data?.errors;
       const responseError =
-        error.response.data?.message || 'Não foi possível salvar o checklist';
+        error.response?.data?.message || 'Não foi possível salvar o checklist';
 
-      if (responseErrors.length) {
+      if (responseErrors?.length) {
         responseErrors.map((error: Record<string, any>) => {
           snackbar.show(error.message, 'error');
         });
@@ -125,7 +136,7 @@ export const CreateChecklist: React.FC<
     { type: 'default', value: 'NA' },
   ];
 
-  const fuelLevelOptions: RadioOption<fuelLevelAnswer>[] = [
+  const fuelLevelOptions: RadioOption<FuelLevelAnswer>[] = [
     { type: 'error', value: 'e' },
     { type: 'default', value: '1/4' },
     { type: 'default', value: '1/2' },
@@ -178,7 +189,7 @@ export const CreateChecklist: React.FC<
         }
       />
 
-      <RadioInputGroup<fuelLevelAnswer>
+      <RadioInputGroup<FuelLevelAnswer>
         selected={state.fuelLevel ?? 'f'}
         label="Nível de Combustível"
         onChange={value => dispatch(update({ fuelLevel: value }))}
@@ -373,16 +384,20 @@ export const CreateChecklist: React.FC<
 
       <TextInput
         label="Quantidade de Estouros"
-        value={state.blowouts}
+        keyboardType="numeric"
+        value={state.blowouts ? state.blowouts.toString() : ''}
         style={{ marginTop: 16 }}
-        onChangeText={value => dispatch(update({ blowouts: value }))}
+        onChangeText={value => dispatch(update({ blowouts: parseInt(value) }))}
       />
 
       <TextInput
-        label="Velocidade Máxima Atingida"
-        value={state.maximumSpeed}
+        label="Velocidade Máxima Atingida (km/h)"
+        keyboardType="numeric"
+        value={state.maximumSpeed ? state.maximumSpeed.toString() : ''}
         style={{ marginTop: 16 }}
-        onChangeText={value => dispatch(update({ maximumSpeed: value }))}
+        onChangeText={value =>
+          dispatch(update({ maximumSpeed: parseInt(value) }))
+        }
       />
 
       <RadioInputGroup<'on' | 'off'>
