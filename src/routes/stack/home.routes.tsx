@@ -5,8 +5,11 @@ import {
   NativeStackNavigationProp,
 } from '@react-navigation/native-stack';
 import React from 'react';
+import { Checklist } from '../../databases/schemas';
+import { Vehicle } from '../../databases/schemas/vehicle';
 import { CreateChecklist } from '../../screens/CreateChecklist';
 import { HomeScreen } from '../../screens/Home';
+import { ShowChecklist } from '../../screens/ShowChecklist';
 import { TabsParamList } from '../auth.routes';
 import { options } from './commons';
 
@@ -15,6 +18,7 @@ const Stack = createNativeStackNavigator();
 export type HomeStackParamList = {
   Checklists: undefined;
   CreateChecklist: { checklistId: string };
+  ShowChecklist: { item: Checklist; vehicle: Vehicle };
 };
 
 export type HomeScreenNavigationProp = CompositeNavigationProp<
@@ -35,6 +39,12 @@ export const HomeStackRoutes = () => {
         options={{ ...options, title: 'Novo checklist' }}
         name="CreateChecklist"
         component={CreateChecklist}
+      />
+
+      <Stack.Screen
+        options={{ ...options, title: 'Checklist' }}
+        name="ShowChecklist"
+        component={ShowChecklist}
       />
     </Stack.Navigator>
   );

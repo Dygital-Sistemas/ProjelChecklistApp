@@ -7,9 +7,11 @@ export const ChecklistSchema: ObjectSchema = {
     vehicleId: 'string?',
     date: 'date',
     isClosed: { type: 'bool', default: false },
+    sent: { type: 'bool', default: false },
+    retriesCount: { type: 'int', default: 0 },
 
     startOdometer: { type: 'int', default: 0 },
-    fuelLevel: { type: 'string', default: '1' },
+    fuelLevel: { type: 'string', default: 'f' },
 
     brakes: { type: 'string', default: 'C' },
     fireExtinguisher: { type: 'string', default: 'C' },
@@ -32,8 +34,8 @@ export const ChecklistSchema: ObjectSchema = {
     wheelChocks: { type: 'string', default: 'C' },
     trafficLights: { type: 'string', default: 'C' },
 
-    blowouts: { type: 'string', default: '0' },
-    maximumSpeed: { type: 'string', default: '0' },
+    blowouts: { type: 'int', default: 0 },
+    maximumSpeed: { type: 'int', default: 0 },
     tireChange: { type: 'bool', default: false },
     frontBreakdowns: 'string[]',
     backBreakdowns: 'string[]',
@@ -48,15 +50,17 @@ export const ChecklistSchema: ObjectSchema = {
 
 export type OptionCommonAnswer = 'C' | 'N' | 'NA';
 
-export type fuelLevelAnswer = 'e' | '1/4' | '1/2' | '3/4' | 'f';
+export type FuelLevelAnswer = 'e' | '1/4' | '1/2' | '3/4' | 'f';
 
 export interface Checklist {
   vehicleId?: string;
   id: string;
   date: Date;
   isClosed?: boolean;
+  retriesCount: number;
+  sent?: boolean;
   startOdometer: number;
-  fuelLevel?: fuelLevelAnswer;
+  fuelLevel?: FuelLevelAnswer;
   brakes?: OptionCommonAnswer;
   fireExtinguisher?: OptionCommonAnswer;
   headlightFlashlight?: OptionCommonAnswer;
@@ -77,8 +81,8 @@ export interface Checklist {
   carFlagLights?: OptionCommonAnswer;
   wheelChocks?: OptionCommonAnswer;
   trafficLights?: OptionCommonAnswer;
-  blowouts?: string;
-  maximumSpeed?: string;
+  blowouts?: number;
+  maximumSpeed?: number;
   tireChange?: boolean;
   frontBreakdowns?: string[];
   backBreakdowns?: string[];
