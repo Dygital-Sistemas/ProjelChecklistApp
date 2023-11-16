@@ -31,6 +31,7 @@ export const DatePicker: React.FC<DatePickProps> = ({
       <TextInput
         ref={inputRef}
         label={label}
+        disabled
         value={formatDate(value)}
         onPressIn={() => setVisible(true)}
         onFocus={() => {

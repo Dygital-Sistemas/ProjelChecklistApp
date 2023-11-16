@@ -112,10 +112,6 @@ export const HomeScreen: React.FC<
       navigateToChecklist(openChecklist);
     }
 
-    // realm.write(() => {
-    //   realm.deleteAll();
-    // });
-
     sendClosedChecklists();
     getApiVehicles();
   }, [getApiVehicles, navigateToChecklist, openChecklist]);
